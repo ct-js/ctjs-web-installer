@@ -32,3 +32,4 @@ jobs:
       with:
         tag_name: ${{ steps.tag_version.outputs.new_tag }}
         asset_files: './dist'
+        repo:  ct-js/ctjs-web-installer
