@@ -5,14 +5,21 @@ html(lang="en")
         meta(http-equiv="X-UA-Compatible" content="IE=edge")
         meta(name="viewport" content="width=device-width, initial-scale=1.0")
         link(rel="stylesheet" type="text/css" href="bundle.css")
+        link(rel="icon" type="image/x-icon" href="icon.ico")
         title Ct.js installer
     body
         #theTemplate(style="display: none;")
             #theMainContent
+                |:if:appState:is:panic:
+                h1
+                    img(src="IconError.svg")
+                    | Error!
+                p :panicMessage:
+                |:endif:appState:
                 |:if:appState:is:notStarted:
                 h1 Welcome to ct.js!
                 p You’re almost there! Press this big button to open a door to a wonderful world of game development:
-                button.big(data-call="startInstallation") Install ct.js
+                button.big(data-call="install") Install ct.js
                 |:endif:appState:
 
                 |:if:appState:is:inProgress:
@@ -37,15 +44,33 @@ html(lang="en")
                         |:endif:index:
                     |:endeach:steps:
                 |:endif:appState:
+                |:if:appState:is:complete:
+                h1
+                    img(src="IconCheckBig.svg")
+                    | All done!
+                p Ct.js was successfully installed and is ready to run:
+                button.big(data-call="runCt") Run ct.js
+                |:endif:appState:
             #theSidebar
                 img(src="HammerCat.svg")
             #theFooter
+                |:if:appState:is:panic:
+                button(data-call="quit") Quit
+                |:endif:appState:
+
                 |:if:appState:is:notStarted:
                 | Will install at :installFolder:
                 button(data-call="promptInstallFolder") Change…
-                |:else:appState:
+                |:endif:appState:
+
+                |:if:appState:is:inProgress:
                 | Pro tip: use the same installer to update ct.js!
-                button(data-call="abort") Abort
+                button(data-call="quit") Abort
+                |:endif:appState:
+
+                |:if:appState:is:complete:
+                | Pro tip: use the same installer to update ct.js!
+                button(data-call="quit") Quit
                 |:endif:appState:
         #theMainLayout
 
@@ -59,27 +84,45 @@ html(lang="en")
                 }, {
                     name: 'Download new release'
                 }, {
-                    name: 'Remove old ct.js'
-                }, {
                     name: 'Unpack ct.js'
                 }, {
                     name: 'Create shortcuts'
                 }],
+                automatic: false,
+                panicMessage: false,
                 progress: 0,
                 currentStep: 0,
-                appState: 'notStarted',
+                appState: 'notStarted', // inProgress, panic, complete
                 installFolder: 'C:\\Users\\user\\AppData\\Local\\ct.js',
 
-                startInstallation: (e, state) => {
+                install: (e, state) => {
                     state.appState = 'inProgress';
                     state.currentStep = 0;
                     pywebview.api.getGithubData().then(data => {
                         state.downloadUrl = data.assets
-                            .find(a => a.name.indexOf(`win${state.x64 ? 'x64' : '32'}`) !== -1)
-                            .browser_download_url;
-                        console.log(state.downloadUrl);
+                            .find(a =>
+                                a.name.indexOf(`win${state.x64 ? 'x64' : '32'}`) !== -1 &&
+                                a.name.indexOf('darwin') === -1
+                            ).browser_download_url;
+                        console.log('Download discovered:', state.downloadUrl);
                         state.currentStep = 1;
                         render();
+                        return pywebview.api.startDownload(state.downloadUrl)
+                    }).then(() => {
+                        state.currentStep = 2;
+                        render();
+                        return pywebview.api.unpack();
+                    }).then(() => {
+                        state.currentStep = 3;
+                        render();
+                        return pywebview.api.createShortcuts();
+                    }).then(() => {
+                        if (!state.automatic) {
+                            state.appState = 'complete';
+                            render();
+                        } else {
+                            state.runCt(false, state);
+                        }
                     });
                 },
                 promptInstallFolder: (e, state) => {
@@ -88,18 +131,38 @@ html(lang="en")
                         render();
                     });
                 },
-                abort: () => {
-                    pywebview.api.abort();
+                runCt: () => {
+                    pywebview.api.runCt();
+                },
+                quit: () => {
+                    pywebview.api.quit();
                 }
             };
             const render = window.shum.mount(template, state, document.getElementById('theMainLayout'));
 
             window.addEventListener('pywebviewready', () => {
-                pywebview.api.getInstallDir().then((installDir) => {
-                    state.installFolder = installDir;
+                Promise.all([
+                    pywebview.api.canAutostart(),
+                    pywebview.api.getInstallDir()
+                ]).then(results => {
+                    state.automatic = results[0];
+                    state.installFolder = results[1];
+                    if (state.automatic) {
+                        state.install(false, state);
+                    }
                     render();
                 });
                 pywebview.api.getArch().then(response => {
                     state.x64 = response.x64;
                 });
+                window.signals = {
+                    downloadProgress: (progress) => {
+                        state.progress = progress;
+                        render();
+                    },
+                    panic: (message) => {
+                        state.panicMessage = message;
+                        render();
+                    }
+                }
             });
