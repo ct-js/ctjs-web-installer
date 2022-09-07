@@ -1,0 +1,1 @@
+pyinstaller start.py -w -F --add-data "./assets;/"

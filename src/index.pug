@@ -1,0 +1,105 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(http-equiv="X-UA-Compatible" content="IE=edge")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        link(rel="stylesheet" type="text/css" href="bundle.css")
+        title Ct.js installer
+    body
+        #theTemplate(style="display: none;")
+            #theMainContent
+                |:if:appState:is:notStarted:
+                h1 Welcome to ct.js!
+                p You’re almost there! Press this big button to open a door to a wonderful world of game development:
+                button.big(data-call="startInstallation") Install ct.js
+                |:endif:appState:
+
+                |:if:appState:is:inProgress:
+                h1 Working…
+                ul
+                    |:each:steps:
+                    li
+                        |:if:index:gt:parent.currentStep:
+                        img(src="IconCircle.svg")
+                        |:endif:index:
+                        |:if:index:eq:parent.currentStep:
+                        img.spin(src="IconSpin.svg")
+                        |:endif:index:
+                        |:if:index:lt:parent.currentStep:
+                        img(src="iconCheck.svg")
+                        |:endif:index:
+                        | :name:
+                        |:if:index:is:1:
+                        |:if:parent.currentStep:eq:index:
+                        | (:parent.progress:%)
+                        |:endif:parent.currentStep:
+                        |:endif:index:
+                    |:endeach:steps:
+                |:endif:appState:
+            #theSidebar
+                img(src="HammerCat.svg")
+            #theFooter
+                |:if:appState:is:notStarted:
+                | Will install at :installFolder:
+                button(data-call="promptInstallFolder") Change…
+                |:else:appState:
+                | Pro tip: use the same installer to update ct.js!
+                button(data-call="abort") Abort
+                |:endif:appState:
+        #theMainLayout
+
+        script(src="morphdom.min.js")
+        script(src="shum.js")
+        script.
+            const template = document.getElementById('theTemplate').innerHTML;
+            const state = {
+                steps: [{
+                    name: 'Get latest releases'
+                }, {
+                    name: 'Download new release'
+                }, {
+                    name: 'Remove old ct.js'
+                }, {
+                    name: 'Unpack ct.js'
+                }, {
+                    name: 'Create shortcuts'
+                }],
+                progress: 0,
+                currentStep: 0,
+                appState: 'notStarted',
+                installFolder: 'C:\\Users\\user\\AppData\\Local\\ct.js',
+
+                startInstallation: (e, state) => {
+                    state.appState = 'inProgress';
+                    state.currentStep = 0;
+                    pywebview.api.getGithubData().then(data => {
+                        state.downloadUrl = data.assets
+                            .find(a => a.name.indexOf(`win${state.x64 ? 'x64' : '32'}`) !== -1)
+                            .browser_download_url;
+                        console.log(state.downloadUrl);
+                        state.currentStep = 1;
+                        render();
+                    });
+                },
+                promptInstallFolder: (e, state) => {
+                    pywebview.api.promptInstallFolder().then(path => {
+                        state.installFolder = path;
+                        render();
+                    });
+                },
+                abort: () => {
+                    pywebview.api.abort();
+                }
+            };
+            const render = window.shum.mount(template, state, document.getElementById('theMainLayout'));
+
+            window.addEventListener('pywebviewready', () => {
+                pywebview.api.getInstallDir().then((installDir) => {
+                    state.installFolder = installDir;
+                    render();
+                });
+                pywebview.api.getArch().then(response => {
+                    state.x64 = response.x64;
+                });
+            });
