@@ -1,2 +1,2 @@
 requests
-pyinstaller=5.3
+pyinstaller==5.3
