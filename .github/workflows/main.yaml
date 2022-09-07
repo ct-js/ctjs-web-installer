@@ -24,12 +24,9 @@ jobs:
       with:
         path: './'
 
-    - name: Create Release With Asset
-      id: Release-AIO
-      uses: Hs1r1us/Release-AIO@v1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Github Release create, update, and upload assets
+      uses: meeDamian/github-release@v2.0.3
       with:
-        tag_name: ${{ steps.tag_version.outputs.new_tag }}
-        asset_files: './dist'
-        repo:  ct-js/ctjs-web-installer
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ steps.tag_version.outputs.new_tag }}
+        files: './dist/*.exe'
