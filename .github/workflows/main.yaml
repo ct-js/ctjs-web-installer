@@ -24,9 +24,11 @@ jobs:
       with:
         path: './'
 
-    - name: Github Release create, update, and upload assets
-      uses: meeDamian/github-release@v2.0.3
+    - name: Automatic Release With Assets
+      uses: ianlapham/release-and-build@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ steps.tag_version.outputs.new_tag }}
-        files: './dist/*.exe'
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: ${{ steps.tag_version.outputs.new_tag }}
+        files: |
+          ./dist/*.exe
+        prerelease: false
