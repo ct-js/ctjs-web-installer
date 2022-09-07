@@ -24,11 +24,11 @@ jobs:
       with:
         path: './'
 
-    - name: Automatic Release With Assets
-      uses: ianlapham/release-and-build@v1
+    - name: Automatic Releases
+      uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: ${{ steps.tag_version.outputs.new_tag }}
+        prerelease: false
         files: |
           ./dist/*.exe
-        prerelease: false
