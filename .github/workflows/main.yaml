@@ -23,7 +23,7 @@ jobs:
       uses:  ct-js/pyinstaller-action-windows@main
       with:
         path: './'
-        arguments:  -w -F --add-data "./assets;/" --icon "./icon.ico" --name "Ct.js web installer"
+        arguments:  -w -F --add-data "./assets;/" --icon "./icon.ico" --name "ctjsWebInstaller"
 
     - name: Automatic Releases
       uses: marvinpinto/action-automatic-releases@v1.2.1

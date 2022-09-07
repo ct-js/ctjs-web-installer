@@ -1,1 +1,1 @@
-pyinstaller start.py -w -F --add-data "./assets;/" --icon "./icon.ico" --name "Ct.js web installer"
+pyinstaller start.py -w -F --add-data "./assets;/" --icon "./icon.ico" --name "ctjsWebInstaller"
