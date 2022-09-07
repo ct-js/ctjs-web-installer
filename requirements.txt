@@ -1,1 +1,2 @@
 requests
+pyinstaller=5.3
