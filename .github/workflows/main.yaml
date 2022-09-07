@@ -20,9 +20,10 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Package Application
-      uses: JackMcKew/pyinstaller-action-windows@main
+      uses:  ct-js/pyinstaller-action-windows@main
       with:
         path: './'
+        arguments:  -w -F --add-data "./assets;/" --icon "./icon.ico" --name "Ct.js web installer"
 
     - name: Automatic Releases
       uses: marvinpinto/action-automatic-releases@v1.2.1
@@ -31,4 +32,4 @@ jobs:
         automatic_release_tag: ${{ steps.tag_version.outputs.new_tag }}
         prerelease: false
         files: |
-          ./dist/*.exe
+          dist/*.exe
