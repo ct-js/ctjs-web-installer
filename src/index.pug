@@ -101,7 +101,7 @@ html(lang="en")
                     pywebview.api.getGithubData().then(data => {
                         state.downloadUrl = data.assets
                             .find(a =>
-                                a.name.indexOf(`win${state.x64 ? 'x64' : '32'}`) !== -1 &&
+                                a.name.indexOf(`win${state.x64 ? '64' : '32'}`) !== -1 &&
                                 a.name.indexOf('darwin') === -1
                             ).browser_download_url;
                         console.log('Download discovered:', state.downloadUrl);
