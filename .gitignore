@@ -4,3 +4,4 @@ dist
 assets/bundle.css
 assets/index.html
 node_modules
+env
