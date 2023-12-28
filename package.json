@@ -1,0 +1,25 @@
+{
+  "name": "ctjsinstaller",
+  "version": "1.0.0",
+  "description": "```sh pip install requests --upgrade --user ```",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ct-js/ctjs-web-installer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ct-js/ctjs-web-installer/issues"
+  },
+  "homepage": "https://github.com/ct-js/ctjs-web-installer#readme",
+  "dependencies": {
+    "gulp": "^4.0.2",
+    "gulp-pug": "^5.0.0",
+    "gulp-stylus": "^2.7.1"
+  }
+}

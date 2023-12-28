@@ -1,7 +1,8 @@
 ## Installing dependencies
 
 ```sh
-pip install requests --upgrade --user
+npm install
+pip install requests pywebview pyinstaller --upgrade --user
 ```
 
 Pug and Stylus files are currently compiled with [Prepros](https://prepros.io/downloads).
@@ -9,6 +10,7 @@ Pug and Stylus files are currently compiled with [Prepros](https://prepros.io/do
 ## Running
 
 ```sh
+gulp
 python ./start.py
 ```
 

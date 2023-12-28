@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Ct.js web installer',
+    name='ctjsWebInstaller',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
