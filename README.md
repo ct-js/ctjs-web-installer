@@ -2,10 +2,8 @@
 
 ```sh
 npm install
-pip install requests pywebview pyinstaller --upgrade --user
+pip install -r requirements.txt
 ```
-
-Pug and Stylus files are currently compiled with [Prepros](https://prepros.io/downloads).
 
 ## Running
 
