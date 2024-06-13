@@ -38,10 +38,11 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Automatic Releases
-      uses: marvinpinto/action-automatic-releases@v1.2.1
+      uses: softprops/action-gh-release@v2
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: ${{ steps.tag_version.outputs.new_tag }}
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
         prerelease: false
+        make_latest: true
+        generate_release_notes: true
         files: |
           ./dist/windows/*.exe
