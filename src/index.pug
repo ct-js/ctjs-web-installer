@@ -161,6 +161,7 @@ html(lang="en")
                         render();
                     },
                     panic: (message) => {
+                        state.appState = 'panic';
                         state.panicMessage = message;
                         render();
                     }
