@@ -66,9 +66,10 @@ const signInstaller = async () => {
     if (!exePatch.sign) {
         throw new Error('Cannot find PFX certificate or PFX password.');
     }
+    const patchPath = (await fs.pathExists('./dist/ctjsWebInstaller.exe')) ? './dist/ctjsWebInstaller.exe' : './dist/windows/ctjsWebInstaller.exe';
     await resedit({
-        in: `./dist/ctjsWebInstaller.exe`,
-        out: `./dist/ctjsWebInstaller.exe`,
+        in: patchPath,
+        out: patchPath,
         ...exePatch
     });
 };
