@@ -1,6 +1,6 @@
 {
   "name": "ctjsinstaller",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "```sh pip install requests --upgrade --user ```",
   "main": "gulpfile.js",
   "scripts": {
