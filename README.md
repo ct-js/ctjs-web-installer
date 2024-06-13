@@ -8,12 +8,11 @@ pip install -r requirements.txt
 ## Running
 
 ```sh
-gulp
-python ./start.py
+gulp && python ./start.py
 ```
 
 ## Building (On Windows)
 
 ```sh
-./build.sh
+npm run build
 ```

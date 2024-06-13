@@ -25,6 +25,12 @@ jobs:
         path: './'
         spec: 'ctjsWebInstaller.spec'
 
+    - name: Sign the installer
+      run: gulp sign
+      env:
+        SIGN_PFX: ${{ secrets.SIGN_PFX }}
+        SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}
+
     - name: Bump version and push tag
       id: tag_version
       uses: mathieudutour/github-tag-action@v6.0

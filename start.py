@@ -160,7 +160,7 @@ class Api:
                 contents = f.read().replace("{installDir}", Vars.installDir())
             runCommand(contents)
         except Exception as e:
-            self.panic('We couldn\'t create shortcuts due to this reason: ' + repr(e) + '\nStill, ct.js is already successfully installed.')
+            self.panic('We couldn\'t create shortcuts due to this reason: ' + repr(e) + f'\nStill, ct.js is already successfully installed at {Vars.installDir()}.')
         window.confirm_close = False
     def runCt(self):
         subprocess.Popen([os.path.join(Vars.installDir(), 'ctjs.exe')])
@@ -171,7 +171,7 @@ class Api:
     def canAutostart(self):
         return args.autostart == True
     def panic(self, message = ''):
-        window.evaluate_js('window.signals.panic("'+ message.replace('"', '\\"') +'");')
+        window.evaluate_js('window.signals.panic("'+ message.replace('"', '\\"').replace('\n', '\\n') +'");')
     def quit(self):
         window.destroy()
         exit()
@@ -185,5 +185,5 @@ if __name__ == '__main__':
     else:
         page = 'assets/index.html'
         # Vars.githubUrl = "https://api.github.com/repos/CosmoMyzrailGorynych/random-test-stuff/releases/latest"
-    window = webview.create_window('Ct.js installer', page, js_api=api, width=600, height=420, resizable=False, confirm_close=True)
+    window = webview.create_window('Ct.js installer', page, js_api=api, width=600, height=420, resizable=False, confirm_close=True, shadow=True)
     webview.start(debug=not frozen)
