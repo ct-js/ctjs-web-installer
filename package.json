@@ -4,6 +4,7 @@
   "description": "```sh pip install requests --upgrade --user ```",
   "main": "gulpfile.js",
   "scripts": {
+    "build": "gulp build && bash build.sh && gulp sign",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,8 +19,11 @@
   },
   "homepage": "https://github.com/ct-js/ctjs-web-installer#readme",
   "dependencies": {
-    "gulp": "^4.0.2",
+    "fs-extra": "^11.2.0",
+    "gulp": "^5.0.0",
     "gulp-pug": "^5.0.0",
-    "gulp-stylus": "^2.7.1"
+    "gulp-stylus": "^2.7.1",
+    "read": "^3.0.1",
+    "resedit-cli": "^2.0.0"
   }
 }

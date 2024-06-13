@@ -1,1 +1,1 @@
-pyinstaller start.py -w -F --add-data "./assets;/" --icon "./icon.ico" --name "ctjsWebInstaller"
+python -m PyInstaller start.py -w -F --add-data "./assets;./" --icon "./icon.ico" --name "ctjsWebInstaller" --exclude-module PyQt5  --exclude-module QtPy
