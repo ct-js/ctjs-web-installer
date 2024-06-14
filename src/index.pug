@@ -78,6 +78,11 @@ html(lang="en")
         script(src="shum.js")
         script.
             const template = document.getElementById('theTemplate').innerHTML;
+            const breakOnPanic = () => {
+                if (state.appState === 'panic') {
+                    throw new Error('In panic mode — aborting.');
+                }
+            };
             const state = {
                 steps: [{
                     name: 'Get latest releases'
@@ -109,14 +114,17 @@ html(lang="en")
                         render();
                         return pywebview.api.startDownload(state.downloadUrl)
                     }).then(() => {
+                        breakOnPanic();
                         state.currentStep = 2;
                         render();
                         return pywebview.api.unpack();
                     }).then(() => {
+                        breakOnPanic();
                         state.currentStep = 3;
                         render();
                         return pywebview.api.createShortcuts();
                     }).then(() => {
+                        breakOnPanic();
                         if (!state.automatic) {
                             state.appState = 'complete';
                             render();

@@ -89,11 +89,16 @@
         });
         // Variables
         output = output.replace(varHTMLMatcher, (match, prop) => {
-            const val = getByDot(prop, state);
-            if (typeof val === 'object') {
-                return JSON.stringify(val);
+            try {
+                const val = getByDot(prop, state);
+                if (typeof val === 'object') {
+                    return JSON.stringify(val);
+                }
+                return val ?? '';
+            } catch (e) {
+                void e;
+                return match;
             }
-            return val ?? '';
         });
         return output;
     };
