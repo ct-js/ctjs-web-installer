@@ -129,8 +129,12 @@ class Api:
         Vars.installDirectoryParent = window.create_file_dialog(dialog_type=webview.FOLDER_DIALOG)[0]
         return Vars.installDir()
     def getGithubData(self):
-        githubData = requests.get(Vars.githubUrl).json()
-        return githubData
+        try:
+            githubData = requests.get(Vars.githubUrl).json()
+            return githubData
+        except Exception as e:
+            self.panic('Could not fetch release info: ' + repr(e) + '\nAre you offline?')
+            return
     def startDownload(self, url):
         if self.state == 'idle':
             self.state = 'downloading'
