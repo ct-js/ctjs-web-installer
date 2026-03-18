@@ -1,5 +1,6 @@
 import sys
 import os
+
 # from platform import platform
 import webview
 import requests
@@ -16,27 +17,44 @@ from shutil import copy2
 #     if "darwin" in platform().lower():
 #         installDirectoryParent = os.path.join(installDirectoryParent, "Applications")
 
-argparser = argparse.ArgumentParser(description='Ct.js installer arguments')
-argparser.add_argument('-a', '--autostart', action='store_true', help='Skip "All done" and "Welcome" screens and automatically launch ct.js after downloading it.')
-argparser.add_argument('-d', '--destination', help='Predefine installation directory by passing a ct.js folder here. Useful for in-place updates.')
+argparser = argparse.ArgumentParser(description="Ct.js installer arguments")
+argparser.add_argument(
+    "-a",
+    "--autostart",
+    action="store_true",
+    help='Skip "All done" and "Welcome" screens and automatically launch ct.js after downloading it.',
+)
+argparser.add_argument(
+    "-d",
+    "--destination",
+    help="Predefine installation directory by passing a ct.js folder here. Useful for in-place updates.",
+)
 args = argparser.parse_args()
+
 
 class Vars:
     githubUrl = "https://api.github.com/repos/ct-js/ct-js/releases/latest"
     installFolderName = "ct.js"
     installDirectoryParent = os.environ["LOCALAPPDATA"]
+
     def installDir():
-        if args.destination == None or args.destination == True or args.destination == False:
+        if (
+            args.destination == None
+            or args.destination == True
+            or args.destination == False
+        ):
             return os.path.join(Vars.installDirectoryParent, Vars.installFolderName)
         return args.destination
-    tempdir = tempfile.TemporaryDirectory(prefix='ctjsInstaller-')
+
+    tempdir = tempfile.TemporaryDirectory(prefix="ctjsInstaller-")
     downloadedFileName = "ctjs-download.zip"
     downloadedFilePath = lambda: os.path.join(
         Vars.tempdir.name, Vars.installFolderName, Vars.downloadedFileName
     )
     downloadedExtractPath = lambda: os.path.join(
-        Vars.tempdir.name, Vars.installFolderName, 'unpacked'
+        Vars.tempdir.name, Vars.installFolderName, "unpacked"
     )
+
 
 # https://stackoverflow.com/a/13790741
 def basePath():
@@ -46,17 +64,24 @@ def basePath():
     except:
         basePath = os.path.abspath(".")
     return basePath
+
+
 def getAsset(name):
     return os.path.join(basePath(), "assets", name)
 
+
 def runCommand(command: str):
     print(f"Running command: {command}")
-    process = subprocess.Popen(command, shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    process = subprocess.Popen(
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     stdout, stderr = process.communicate()
     if process.returncode != 0 or stderr:
         raise Exception(stderr)
 
+
 # Download procedure
+
 
 # https://stackoverflow.com/questions/9419162/download-returned-zip-file-from-url#14260592
 def downloadUrl(api: "Api", url):
@@ -87,8 +112,11 @@ def downloadUrl(api: "Api", url):
                     sys.stdout.write("\r[%s / %s]" % (done, 100))
                     sys.stdout.flush()
     except Exception as e:
-        api.panic(f'Downloading {url} failed: ' + repr(e) + '\nMaybe try again?')
+        api.panic(f"Downloading {url} failed: " + repr(e) + "\nMaybe try again?")
+
+
 # Unpacking
+
 
 # https://stackoverflow.com/a/39296577
 class ZipFile(ZipFile_):
@@ -101,6 +129,8 @@ class ZipFile(ZipFile_):
             path = os.fspath(path)
         for zipinfo in members:
             self.extract(zipinfo, path, pwd)
+
+
 # https://lukelogbook.tech/2018/01/25/merging-two-folders-in-python/
 def copytree(src, dst):
     for src_dir, dirs, files in os.walk(src):
@@ -113,81 +143,153 @@ def copytree(src, dst):
             if os.path.exists(dst_file):
                 os.remove(dst_file)
             copy2(src_file, dst_dir)
+
+
 # JS API
+
 
 class Api:
     window: "webview.window"
+
     def __init__(self):
-        self.state = 'idle'
+        self.state = "idle"
+
     def getInstallDir(self):
         return Vars.installDir()
+
     def getArch(self):
-        return {
-            "x64": sys.maxsize > 2 ** 32
-        }
+        return {"x64": sys.maxsize > 2**32}
+
     def promptInstallFolder(self):
-        Vars.installDirectoryParent = window.create_file_dialog(dialog_type=webview.FOLDER_DIALOG)[0]
+        Vars.installDirectoryParent = window.create_file_dialog(
+            dialog_type=webview.FOLDER_DIALOG
+        )[0]
         return Vars.installDir()
+
     def getGithubData(self):
         try:
             githubData = requests.get(Vars.githubUrl).json()
             return githubData
         except Exception as e:
-            self.panic('Could not fetch release info: ' + repr(e) + '\nAre you offline?')
+            self.panic(
+                "Could not fetch release info: " + repr(e) + "\nAre you offline?"
+            )
             return
+
     def startDownload(self, url):
-        if self.state == 'idle':
-            self.state = 'downloading'
+        if self.state == "idle":
+            self.state = "downloading"
             downloadUrl(self, url)
+
     def unpack(self):
         with ZipFile(Vars.downloadedFilePath(), "r") as zip_ref:
             try:
                 zipFolderName = os.path.dirname(zip_ref.namelist()[0])
             except:
                 pass
-            zip_ref.extractall(Vars.downloadedExtractPath()) # Extract to a temp directory
+            zip_ref.extractall(
+                Vars.downloadedExtractPath()
+            )  # Extract to a temp directory
         # remove old ct.js installation
-        if (os.path.exists(Vars.installDir())):
+        if os.path.exists(Vars.installDir()):
             try:
                 os.remove(Vars.installDir())
             except Exception as e:
-                self.panic(f'Cannot remove old installation at {Vars.installDir()}: ' + repr(e) + '\nMaybe try running as admin?')
+                self.panic(
+                    f"Cannot remove old installation at {Vars.installDir()}: "
+                    + repr(e)
+                    + "\nMaybe try running as admin?"
+                )
                 return
         try:
-            copytree(os.path.join(Vars.downloadedExtractPath(), zipFolderName), Vars.installDir())
+            copytree(
+                os.path.join(Vars.downloadedExtractPath(), zipFolderName),
+                Vars.installDir(),
+            )
         except OSError as e:
-            self.panic(f'Cannot install to {Vars.installDir()}: ' + repr(e) + '\nMaybe try running as admin?')
+            self.panic(
+                f"Cannot install to {Vars.installDir()}: "
+                + repr(e)
+                + "\nMaybe try running as admin?"
+            )
             return
+
     def createShortcuts(self):
+        installDir = Vars.installDir()
+        ps1Content = f'''
+$shell = New-Object -COM WScript.Shell
+$startMenuPath = [Environment]::GetFolderPath("StartMenu") + "\\Programs\\ct.js.lnk"
+$desktopPath = [Environment]::GetFolderPath("Desktop") + "\\ct.js.lnk"
+
+$shortcut1 = $shell.CreateShortcut($startMenuPath)
+$shortcut1.TargetPath = "{installDir}\\ctjs.exe"
+$shortcut1.IconLocation = "{installDir}\\data\\icon.ico"
+$shortcut1.Save()
+
+$shortcut2 = $shell.CreateShortcut($desktopPath)
+$shortcut2.TargetPath = "{installDir}\\ctjs.exe"
+$shortcut2.IconLocation = "{installDir}\\data\\icon.ico"
+$shortcut2.Save()
+'''
         try:
-            with open(getAsset("createShortcuts.bat"), "r") as f:
-                contents = f.read().replace("{installDir}", Vars.installDir())
-            runCommand(contents)
+            import tempfile
+
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".ps1", delete=False, encoding="utf-8"
+            ) as f:
+                f.write(ps1Content)
+                ps1Path = f.name
+            runCommand(f'powershell -ExecutionPolicy Bypass -File "{ps1Path}"')
+            os.remove(ps1Path)
         except Exception as e:
-            self.panic('We couldn\'t create shortcuts due to this reason: ' + repr(e) + f'\nStill, ct.js is already successfully installed at {Vars.installDir()}.')
+            self.panic(
+                "We couldn't create shortcuts due to this reason: "
+                + repr(e)
+                + f"\nStill, ct.js is already successfully installed at {Vars.installDir()}."
+            )
         window.confirm_close = False
+
     def runCt(self):
-        subprocess.Popen([os.path.join(Vars.installDir(), 'ctjs.exe')])
+        subprocess.Popen([os.path.join(Vars.installDir(), "ctjs.exe")])
         window.confirm_close = False
         self.quit()
+
     def updateDownloadProgress(self, progress):
-        window.evaluate_js('window.signals.downloadProgress('+ str(progress) +');')
+        window.evaluate_js("window.signals.downloadProgress(" + str(progress) + ");")
+
     def canAutostart(self):
         return args.autostart == True
-    def panic(self, message = ''):
-        window.evaluate_js('window.signals.panic("'+ message.replace('"', '\\"').replace('\n', '\\n') +'");')
+
+    def panic(self, message=""):
+        window.evaluate_js(
+            'window.signals.panic("'
+            + message.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+            + '");'
+        )
+
     def quit(self):
         window.destroy()
         exit()
+
+
 # Run the app
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     api = Api()
     frozen = getattr(sys, "frozen", False)
     if frozen:
-        page = 'index.html'
+        page = "index.html"
     else:
-        page = 'assets/index.html'
+        page = "assets/index.html"
         # Vars.githubUrl = "https://api.github.com/repos/CosmoMyzrailGorynych/random-test-stuff/releases/latest"
-    window = webview.create_window('Ct.js installer', page, js_api=api, width=600, height=420, resizable=False, confirm_close=True, shadow=True)
+    window = webview.create_window(
+        "Ct.js installer",
+        page,
+        js_api=api,
+        width=600,
+        height=420,
+        resizable=False,
+        confirm_close=True,
+        shadow=True,
+    )
     webview.start(debug=not frozen)
