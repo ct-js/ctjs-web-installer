@@ -1,7 +1,10 @@
 ## Installing dependencies
 
+⚠ Requires Python <3.14 (3.14+ doesn't work atm, use Python v3.13)
+
 ```sh
 npm install
+pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 ```
 

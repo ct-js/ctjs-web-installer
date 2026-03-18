@@ -3,7 +3,6 @@ import { src, dest, parallel, series } from 'gulp';
 import stylus from 'gulp-stylus';
 import pug from 'gulp-pug';
 import log from 'gulplog';
-import resedit from 'resedit-cli';
 import {read} from 'read';
 
 const buildStylus = () =>
@@ -67,6 +66,7 @@ const signInstaller = async () => {
         throw new Error('Cannot find PFX certificate or PFX password.');
     }
     const patchPath = (await fs.pathExists('./dist/ctjsWebInstaller.exe')) ? './dist/ctjsWebInstaller.exe' : './dist/windows/ctjsWebInstaller.exe';
+    const resedit = (await import('resedit-cli')).default;
     await resedit({
         in: patchPath,
         out: patchPath,

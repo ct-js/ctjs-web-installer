@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 
 # from platform import platform
 import webview
@@ -193,7 +194,7 @@ class Api:
         # remove old ct.js installation
         if os.path.exists(Vars.installDir()):
             try:
-                os.remove(Vars.installDir())
+                shutil.rmtree(Vars.installDir())
             except Exception as e:
                 self.panic(
                     f"Cannot remove old installation at {Vars.installDir()}: "
@@ -228,7 +229,7 @@ $shortcut1.Save()
 
 $shortcut2 = $shell.CreateShortcut($desktopPath)
 $shortcut2.TargetPath = "{installDir}\\ctjs.exe"
-$shortcut2.IconLocation = "{installDir}\\data\\icon.ico"
+$shortcut2.IconLocation = "{installDir}\\package.nw\\data\\icon.ico"
 $shortcut2.Save()
 '''
         try:
